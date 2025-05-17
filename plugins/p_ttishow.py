@@ -1,4 +1,4 @@
-# Don't Remove Credit @Tonystark_botz
+# Don't Remove Credit @DigitalGalaxyHQ
 # Ask Doubt on telegram @Spider_Man_02
 
 import os, string, logging, random, asyncio, time, datetime, re, sys, json, base64
@@ -11,7 +11,7 @@ from database.users_chats_db import db, delete_all_referal_users, get_referal_us
 from database.join_reqs import JoinReqs
 from info import *
 from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong, PeerIdInvalid
-from utils import get_settings, pub_is_subscribed, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token, get_shortlink, get_tutorial, get_seconds
+from utils import get_settings, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token, get_shortlink, get_tutorial, get_seconds
 from database.connections_mdb import active_connection
 
 @Client.on_message(filters.new_chat_members & filters.group)
@@ -260,12 +260,11 @@ async def unban_a_user(bot, message):
     
 @Client.on_message(filters.command('users') & filters.user(ADMINS))
 async def list_users(bot, message):
-    # https://t.me/GetTGLink/4184
     raju = await message.reply('Getting List Of Users')
     users = await db.get_all_users()
     out = "Users Saved In DB Are:\n\n"
     for user in users:
-        out += f"<a href=tg://user?id={user['id']}>{user['name']}</a>"
+        out += f"**Name:** {user['name']}\n**ID:** `{user['id']}`"
         if user['ban_status']['is_banned']:
             out += '( Banned User )'
         out += '\n'
@@ -275,6 +274,8 @@ async def list_users(bot, message):
         with open('users.txt', 'w+') as outfile:
             outfile.write(out)
         await message.reply_document('users.txt', caption="List Of Users")
+        await raju.delete()
+        os.remove('users.txt')
 
 @Client.on_message(filters.command('chats') & filters.user(ADMINS))
 async def list_chats(bot, message):
@@ -292,3 +293,5 @@ async def list_chats(bot, message):
         with open('chats.txt', 'w+') as outfile:
             outfile.write(out)
         await message.reply_document('chats.txt', caption="List Of Chats")
+        await raju.delete()
+        os.remove('chats.txt')

@@ -1,4 +1,4 @@
-# Don't Remove Credit @Tonystark_botz
+# Don't Remove Credit @DigitalGalaxyHQ
 # Ask Doubt on telegram @Spider_Man_02
 
 import logging, asyncio, os, re, random, pytz, aiohttp, requests, string, json, http.client
@@ -47,19 +47,6 @@ class temp(object):
     IMDB_CAP = {}
 
 
-async def pub_is_subscribed(bot, query, channel):
-    btn = []
-    for id in channel:
-        chat = await bot.get_chat(int(id))
-        try:
-            await bot.get_chat_member(id, query.from_user.id)
-        except UserNotParticipant:
-            btn.append(
-                [InlineKeyboardButton(f'Join {chat.title}', url=chat.invite_link)]
-            )
-        except Exception as e:
-            pass
-    return btn
 
 async def is_subscribed(bot, query):
     if REQUEST_TO_JOIN_MODE == True and join_db().isActive():
@@ -241,6 +228,35 @@ def get_size(size):
         i += 1
         size /= 1024.0
     return "%.2f %s" % (size, units[i])
+
+
+def silent_size(size):
+    size = float(size)
+    size_gb = size / (1024 ** 3)
+    return "%.2f GB" % size_gb
+                        
+def extract_tag(file_name: str) -> str:
+    file_name = file_name.lower()
+    file_name = re.sub(r'[\._\-]+', ' ', file_name)
+    patterns = [
+        r'\b(?:s|season)\s*0*(\d{1,2})\s*(?:e|episode)\s*0*(\d{1,2})\b',
+        r'\b(\d{1,2})\s*(?:x|episode)\s*0*(\d{1,2})\b',
+        r'\bs0*(\d{1,2})e0*(\d{1,2})\b',
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, file_name)
+        if match:
+            season = int(match.group(1))
+            episode = int(match.group(2))
+            return f"[S{season:02d}E{episode:02d}]"
+    season_match = re.search(r'\b(?:s|season)\s*0*(\d{1,2})\b', file_name)
+    if season_match:
+        season = int(season_match.group(1))
+        return f"[S{season:02d}]"
+    quality_match = re.search(r'\b(2160p|1080p|720p|480p|360p|4k)\b', file_name)
+    if quality_match:
+        return f"[{quality_match.group(1)}]"
+    return ""
 
 def split_list(l, n):
     for i in range(0, len(l), n):
@@ -480,10 +496,6 @@ def humanbytes(size):
 
 
 
-async def get_clone_shortlink(link, url, api):
-    shortzy = Shortzy(api_key=api, base_site=url)
-    link = await shortzy.convert(link)
-    return link
 
 async def get_shortlink(chat_id, link):
     settings = await get_settings(chat_id) #fetching settings for group
